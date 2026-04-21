@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MessageType {
+  TEXT
+  PHOTO
+  VIDEO
+  AUDIO
+  DOCUMENT
+  STICKER
+  LOCATION
+  CONTACT
+  SERVICE
+  OTHER
+}
+
+enum NoteTargetType {
+  USER
+  CHAT
+  MESSAGE
+}
+
+enum CustomFieldType {
+  TEXT
+  NUMBER
+  SELECT
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+model Account {
+  id          String    @id @default(cuid())
+  name        String
+  telegramId  String?   @unique
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  bots        Bot[]
+  chats       Chat[]
+  users       User[]
+  messages    Message[]
+  notes       Note[]
+  customFields CustomField[]
+  customFieldValues CustomFieldValue[]
+  actionLogs  ActionLog[]
+}
+
+model Bot {
+  id              String    @id @default(cuid())
+  accountId       String
+  account         Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  name            String
+  token           String
+  username        String?
+  tokenMasked     String
+  webhookPath     String    @unique
+  webhookSecret   String
+  isActive        Boolean   @default(true)
+  lastActivityAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  chats           Chat[]
+
+  @@index([accountId])
+}
+
+model Chat {
+  id                String    @id @default(cuid())
+  accountId         String
+  account           Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  botId             String?
+  bot               Bot?      @relation(fields: [botId], references: [id])
+  telegramChatId    String
+  title             String?
+  username          String?
+  type              String?
+  lastMessageAt     DateTime?
+  isArchived        Boolean   @default(false)
+  archiveReason     String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  users             User[]
+  messages          Message[]
+  notes             Note[]
+  customFieldValues CustomFieldValue[]
+  analysis          ChatAnalysis?
+  clientProfile     ClientProfile?
+
+  @@unique([accountId, telegramChatId])
+  @@index([accountId])
+}
+
+model User {
+  id              String    @id @default(cuid())
+  accountId       String
+  account         Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  telegramUserId  String
+  username        String?
+  firstName       String?
+  lastName        String?
+  role            UserRole  @default(VIEWER)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  chatId          String?
+  chat            Chat?     @relation(fields: [chatId], references: [id])
+
+  messages        Message[]
+  notes           Note[]
+  authoredNotes   Note[]    @relation("NoteAuthor")
+
+  @@unique([accountId, telegramUserId])
+  @@index([accountId])
+}
+
+model Message {
+  id                String      @id @default(cuid())
+  accountId         String
+  account           Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  chatId            String
+  chat              Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  userId            String?
+  user              User?       @relation(fields: [userId], references: [id])
+  telegramMessageId String
+  replyToMessageId  String?
+  text              String?
+  messageType       MessageType @default(TEXT)
+  eventType         String
+  sentAt            DateTime
+  editedAt          DateTime?
+  deletedAt         DateTime?
+  isEdited          Boolean     @default(false)
+  metadata          Json?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  attachments       Attachment[]
+  reactions         Reaction[]
+  notes             Note[]
+
+  @@unique([chatId, telegramMessageId])
+  @@index([accountId, sentAt])
+  @@index([eventType])
+}
+
+model Attachment {
+  id            String   @id @default(cuid())
+  messageId     String
+  message       Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  telegramFileId String?
+  fileName      String?
+  mimeType      String?
+  url           String?
+  size          Int?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  @@index([messageId])
+}
+
+model Reaction {
+  id          String   @id @default(cuid())
+  messageId   String
+  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  emoji       String
+  count       Int      @default(1)
+  users       Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([messageId, emoji])
+}
+
+model Note {
+  id            String         @id @default(cuid())
+  accountId     String
+  account       Account        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  targetType    NoteTargetType
+  targetId      String
+  text          String
+  tags          String[]
+  authorId      String?
+  author        User?          @relation("NoteAuthor", fields: [authorId], references: [id])
+  chatId        String?
+  chat          Chat?          @relation(fields: [chatId], references: [id])
+  userId        String?
+  user          User?          @relation(fields: [userId], references: [id])
+  messageId     String?
+  message       Message?       @relation(fields: [messageId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([accountId, targetType, targetId])
+}
+
+model ChatAnalysis {
+  id                  String    @id @default(cuid())
+  chatId              String    @unique
+  chat                Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  videoNotesCount     Int       @default(0)
+  photosCount         Int       @default(0)
+  voiceCount          Int       @default(0)
+  avgResponseTimeSec  Float?
+  eveningMsgCount     Int       @default(0)
+  newChatsNextDay     Boolean?
+  topicsCovered       Json?
+  qualityScore        Float?
+  qualityIssues       Json?
+  archiveReason       String?
+  analyzedAt          DateTime?
+  rawAiResult         Json?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model ClientProfile {
+  id              String    @id @default(cuid())
+  chatId          String    @unique
+  chat            Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  telegramUserId  String?
+  displayName     String?
+  hobbies         String[]
+  hometown        String?
+  maritalStatus   String?
+  hasKids         Boolean?
+  hasPets         Boolean?
+  favoriteCuisine String?
+  canCook         Boolean?
+  favoriteMovies  String[]
+  travelPlaces    String[]
+  education       String?
+  currentJob      String?
+  badHabits       String[]
+  dreams          String?
+  fears           String?
+  financialInfo   String?
+  rawProfile      Json?
+  extractedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model CustomField {
+  id          String          @id @default(cuid())
+  accountId   String
+  account     Account         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  key         String
+  label       String
+  type        CustomFieldType
+  options     String[]
+  sortOrder   Int             @default(0)
+  isRequired  Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  values      CustomFieldValue[]
+
+  @@unique([accountId, key])
+}
+
+model CustomFieldValue {
+  id            String      @id @default(cuid())
+  accountId     String
+  account       Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  customFieldId String
+  customField   CustomField @relation(fields: [customFieldId], references: [id], onDelete: Cascade)
+  chatId        String
+  chat          Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  valueText     String?
+  valueNumber   Float?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([customFieldId, chatId])
+  @@index([accountId, chatId])
+}
+
+model ActionLog {
+  id          String   @id @default(cuid())
+  accountId   String
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  actorUserId String?
+  action      String
+  entityType  String
+  entityId    String?
+  payload     Json?
+  createdAt   DateTime @default(now())
+
+  @@index([accountId, createdAt])
+}

@@ -1,0 +1,125 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build API
+        run: npm run build -w apps/api
+
+      - name: Build Web
+        run: npm run build -w apps/web
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      - name: Deploy to server via SSH key
+        if: ${{ secrets.SSH_PRIVATE_KEY != '' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+
+            APP_DIR="${{ secrets.APP_DIR }}"
+            if [ -z "$APP_DIR" ]; then APP_DIR="/home/app"; fi
+
+            cd "$APP_DIR"
+
+            # Pull latest code
+            git pull --ff-only origin main
+
+            # Install deps
+            npm ci
+
+            # Build
+            npm run build -w apps/api
+
+            VITE_API_URL="${{ secrets.VITE_API_URL }}" npm run build -w apps/web
+
+            # Apply DB migrations
+            cd apps/api && npx prisma migrate deploy && cd ../..
+
+            # Restart PM2
+            pm2 startOrReload ecosystem.config.js --env production
+            pm2 save
+
+            # Reload nginx
+            nginx -t && systemctl reload nginx
+
+            # Healthcheck
+            curl -fsS http://127.0.0.1:4000/health >/dev/null
+
+            echo "✅ Deploy complete"
+
+      - name: Deploy to server via SSH password (fallback)
+        if: ${{ secrets.SSH_PRIVATE_KEY == '' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script_stop: true
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+
+            APP_DIR="${{ secrets.APP_DIR }}"
+            if [ -z "$APP_DIR" ]; then APP_DIR="/home/app"; fi
+
+            cd "$APP_DIR"
+
+            # Pull latest code
+            git pull --ff-only origin main
+
+            # Install deps
+            npm ci
+
+            # Build
+            npm run build -w apps/api
+
+            VITE_API_URL="${{ secrets.VITE_API_URL }}" npm run build -w apps/web
+
+            # Apply DB migrations
+            cd apps/api && npx prisma migrate deploy && cd ../..
+
+            # Restart PM2
+            pm2 startOrReload ecosystem.config.js --env production
+            pm2 save
+
+            # Reload nginx
+            nginx -t && systemctl reload nginx
+
+            # Healthcheck
+            curl -fsS http://127.0.0.1:4000/health >/dev/null
+
+            echo "✅ Deploy complete"
