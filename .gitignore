@@ -6,3 +6,6 @@ apps/**/.turbo
 apps/**/node_modules
 apps/api/prisma/migrations
 *.log
+*.tar.gz
+*.zip
+*.tsbuildinfo
