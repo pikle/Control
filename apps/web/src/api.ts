@@ -12,7 +12,26 @@ import {
   SidebarData,
 } from './types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+function resolveApiUrl(): string {
+  const envUrl = import.meta.env.VITE_API_URL?.trim();
+
+  if (!envUrl) {
+    return '/api';
+  }
+
+  const normalized = envUrl.replace(/\/+$/, '');
+  const isLocalApi = /https?:\/\/(localhost|127\.0\.0\.1):4000$/i.test(normalized);
+  const isLocalPage = typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+
+  // If a production page was accidentally built with localhost API, fall back to nginx proxy.
+  if (isLocalApi && !isLocalPage) {
+    return '/api';
+  }
+
+  return normalized;
+}
+
+const API_URL = resolveApiUrl();
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${url}`, {
