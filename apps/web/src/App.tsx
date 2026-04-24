@@ -663,21 +663,21 @@ function AdminView({ accountId }: { accountId: string }) {
   return (
     <div className="grid h-[calc(100vh-94px)] grid-cols-1 gap-3 lg:grid-cols-3">
       <section className="rounded-2xl border border-neutral-800 bg-neutral-900/70 p-3">
-        <h3 className="mb-3 text-sm font-semibold">РЈРїСЂР°РІР»РµРЅРёРµ Р±РѕС‚Р°РјРё</h3>
+        <h3 className="mb-3 text-sm font-semibold">Управление ботами</h3>
         <form onSubmit={createBot} className="mb-3 space-y-2">
           <input
             value={botName}
             onChange={(e) => setBotName(e.target.value)}
-            placeholder="РРјСЏ Р±РѕС‚Р°"
+            placeholder="Имя бота"
             className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-2.5 py-2 text-sm outline-none focus:border-violet-500"
           />
           <input
             value={botToken}
             onChange={(e) => setBotToken(e.target.value)}
-            placeholder="РўРѕРєРµРЅ Р±РѕС‚Р°"
+            placeholder="Токен бота"
             className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-2.5 py-2 text-sm outline-none focus:border-violet-500"
           />
-          <button className="rounded-lg bg-violet-500 px-3 py-1.5 text-sm text-white hover:bg-violet-400">Р”РѕР±Р°РІРёС‚СЊ</button>
+          <button className="rounded-lg bg-violet-500 px-3 py-1.5 text-sm text-white hover:bg-violet-400">Добавить</button>
         </form>
         <div className="space-y-2 text-xs">
           {bots.map((bot) => (
@@ -707,7 +707,7 @@ function AdminView({ accountId }: { accountId: string }) {
                 <div className="mt-1 text-[11px] text-neutral-400">{connectStatus[bot.id]}</div>
               )}
               <div className="mt-1 text-neutral-500">
-                РђРєС‚РёРІРЅРѕСЃС‚СЊ: {bot.lastActivityAt ? new Date(bot.lastActivityAt).toLocaleString() : 'РЅРµС‚'}
+                Активность: {bot.lastActivityAt ? new Date(bot.lastActivityAt).toLocaleString() : 'нет'}
               </div>
             </div>
           ))}
@@ -715,18 +715,18 @@ function AdminView({ accountId }: { accountId: string }) {
       </section>
 
       <section className="rounded-2xl border border-neutral-800 bg-neutral-900/70 p-3">
-        <h3 className="mb-3 text-sm font-semibold">РљР°СЃС‚РѕРјРЅС‹Рµ РїРѕР»СЏ</h3>
+        <h3 className="mb-3 text-sm font-semibold">Кастомные поля</h3>
         <form onSubmit={createField} className="mb-3 space-y-2">
           <input
             value={fieldKey}
             onChange={(e) => setFieldKey(e.target.value)}
-            placeholder="РљР»СЋС‡"
+            placeholder="Ключ"
             className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-2.5 py-2 text-sm outline-none focus:border-violet-500"
           />
           <input
             value={fieldLabel}
             onChange={(e) => setFieldLabel(e.target.value)}
-            placeholder="РќР°Р·РІР°РЅРёРµ"
+            placeholder="Название"
             className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-2.5 py-2 text-sm outline-none focus:border-violet-500"
           />
           <select
@@ -734,29 +734,29 @@ function AdminView({ accountId }: { accountId: string }) {
             onChange={(e) => setFieldType(e.target.value as 'TEXT' | 'NUMBER' | 'SELECT')}
             className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-2.5 py-2 text-sm outline-none focus:border-violet-500"
           >
-            <option value="TEXT">РўРµРєСЃС‚</option>
-            <option value="NUMBER">Р§РёСЃР»Рѕ</option>
-            <option value="SELECT">РЎРїРёСЃРѕРє</option>
+            <option value="TEXT">Текст</option>
+            <option value="NUMBER">Число</option>
+            <option value="SELECT">Список</option>
           </select>
-          <button className="rounded-lg bg-violet-500 px-3 py-1.5 text-sm text-white hover:bg-violet-400">РЎРѕР·РґР°С‚СЊ</button>
+          <button className="rounded-lg bg-violet-500 px-3 py-1.5 text-sm text-white hover:bg-violet-400">Создать</button>
         </form>
 
         <div className="space-y-1.5 text-xs">
           {customFields.map((field) => (
             <div key={field.id} className="rounded-xl border border-neutral-800 bg-neutral-950 p-2.5">
               <div>{field.label} ({field.key})</div>
-              <div className="mt-1 text-neutral-500">РўРёРї: {field.type}</div>
+              <div className="mt-1 text-neutral-500">Тип: {field.type}</div>
               <div className="mt-2 flex gap-1.5">
                 <button
                   onClick={async () => {
-                    const next = prompt('РќРѕРІРѕРµ РЅР°Р·РІР°РЅРёРµ РїРѕР»СЏ', field.label);
+                    const next = prompt('Новое название поля', field.label);
                     if (!next) return;
                     await api.updateCustomField(field.id, { label: next });
                     refresh();
                   }}
                   className="rounded-md border border-neutral-700 px-2 py-0.5 hover:border-violet-500"
                 >
-                  РР·РјРµРЅРёС‚СЊ
+                  Изменить
                 </button>
                 <button
                   onClick={async () => {
@@ -765,7 +765,7 @@ function AdminView({ accountId }: { accountId: string }) {
                   }}
                   className="rounded-md border border-rose-500/40 px-2 py-0.5 text-rose-300 hover:bg-rose-500/10"
                 >
-                  РЈРґР°Р»РёС‚СЊ
+                  Удалить
                 </button>
               </div>
             </div>
@@ -774,13 +774,13 @@ function AdminView({ accountId }: { accountId: string }) {
       </section>
 
       <section className="rounded-2xl border border-neutral-800 bg-neutral-900/70 p-3">
-        <h3 className="mb-3 text-sm font-semibold">РџРѕР»СЊР·РѕРІР°С‚РµР»Рё Рё Р»РѕРі</h3>
+        <h3 className="mb-3 text-sm font-semibold">Пользователи и лог</h3>
         <div className="mb-3 max-h-60 space-y-1.5 overflow-y-auto text-xs">
           {users.map((user) => (
             <div key={user.id} className="rounded-xl border border-neutral-800 bg-neutral-950 p-2.5">
               <div>{user.username ? `@${user.username}` : user.telegramUserId}</div>
               <div className="mt-1 flex items-center justify-between">
-                <span className="text-neutral-500">Р РѕР»СЊ: {user.role}</span>
+                <span className="text-neutral-500">Роль: {user.role}</span>
                 <select
                   value={user.role}
                   onChange={(e) => setRole(user.id, e.target.value as 'ADMIN' | 'MANAGER' | 'VIEWER')}
@@ -795,11 +795,11 @@ function AdminView({ accountId }: { accountId: string }) {
           ))}
         </div>
 
-        <h4 className="mb-2 text-xs font-semibold text-neutral-300">Р›РѕРі РґРµР№СЃС‚РІРёР№</h4>
+        <h4 className="mb-2 text-xs font-semibold text-neutral-300">Лог действий</h4>
         <div className="max-h-56 space-y-1.5 overflow-y-auto text-[11px]">
           {logs.map((log) => (
             <div key={log.id} className="rounded-lg border border-neutral-800 bg-neutral-950 p-2">
-              <div>{log.action} вЂў {log.entityType}</div>
+              <div>{log.action} - {log.entityType}</div>
               <div className="text-neutral-500">{new Date(log.createdAt).toLocaleString()}</div>
             </div>
           ))}
@@ -853,13 +853,13 @@ function ReportsView({ accountId }: { accountId: string }) {
     <div className="grid h-[calc(100vh-94px)] grid-cols-1 gap-3 lg:grid-cols-[280px_1fr]">
       <aside className="min-h-0 rounded-2xl border border-neutral-800 bg-neutral-900/70 p-3">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold">РњРµРЅРµРґР¶РµСЂС‹</h3>
+          <h3 className="text-sm font-semibold">Менеджеры</h3>
           <button
             onClick={runAnalysis}
             disabled={isRunning}
             className="rounded-lg bg-violet-500 px-3 py-1.5 text-xs text-white disabled:opacity-50"
           >
-            {isRunning ? 'РђРЅР°Р»РёР·...' : 'Р—Р°РїСѓСЃС‚РёС‚СЊ AI Р°РЅР°Р»РёР·'}
+            {isRunning ? 'Анализ...' : 'Запустить AI анализ'}
           </button>
         </div>
 
@@ -876,11 +876,11 @@ function ReportsView({ accountId }: { accountId: string }) {
               )}
             >
               <div className="font-semibold">{manager.name}</div>
-              <div className="mt-1 text-neutral-400">РљР»РёРµРЅС‚РѕРІ: {manager.clientsCount}</div>
-              <div className="text-neutral-400">РђСЂС…РёРІ: {manager.archivedCount}</div>
-              <div className="text-neutral-400">РЎСЂРµРґРЅРёР№ Р±Р°Р»Р»: {manager.avgScore}</div>
+              <div className="mt-1 text-neutral-400">Клиентов: {manager.clientsCount}</div>
+              <div className="text-neutral-400">Архив: {manager.archivedCount}</div>
+              <div className="text-neutral-400">Средний балл: {manager.avgScore}</div>
               <div className={manager.criticalCount > 0 ? 'text-rose-300' : 'text-emerald-300'}>
-                РљСЂРёС‚РёС‡РµСЃРєРёРµ: {manager.criticalCount}
+                Критические: {manager.criticalCount}
               </div>
             </button>
           ))}
@@ -888,22 +888,22 @@ function ReportsView({ accountId }: { accountId: string }) {
       </aside>
 
       <section className="min-h-0 rounded-2xl border border-neutral-800 bg-neutral-900/70 p-3">
-        <h3 className="mb-3 text-sm font-semibold">РћС‚С‡РµС‚ РїРѕ РєР»РёРµРЅС‚Р°Рј РјРµРЅРµРґР¶РµСЂР°</h3>
+        <h3 className="mb-3 text-sm font-semibold">Отчет по клиентам менеджера</h3>
         <div className="max-h-[calc(100vh-180px)] overflow-auto rounded-xl border border-neutral-800">
           <table className="w-full text-left text-xs">
             <thead className="sticky top-0 bg-neutral-950 text-neutral-300">
               <tr>
-                <th className="px-2 py-2">РљР»РёРµРЅС‚</th>
-                <th className="px-2 py-2">РљСЂСѓР¶РєРё</th>
-                <th className="px-2 py-2">Р¤РѕС‚Рѕ</th>
-                <th className="px-2 py-2">Р“РѕР»РѕСЃ</th>
-                <th className="px-2 py-2">РћС‚РІРµС‚, СЃРµРє</th>
-                <th className="px-2 py-2">Р’РµС‡РµСЂ</th>
-                <th className="px-2 py-2">РўРµРјС‹</th>
-                <th className="px-2 py-2">РћСЃС‚Р°Р»СЃСЏ РЅР° СЃР»РµРґ. РґРµРЅСЊ</th>
-                <th className="px-2 py-2">РђСЂС…РёРІ</th>
-                <th className="px-2 py-2">РћС†РµРЅРєР°</th>
-                <th className="px-2 py-2">РџСЂРѕР±Р»РµРјС‹</th>
+                <th className="px-2 py-2">Клиент</th>
+                <th className="px-2 py-2">Кружки</th>
+                <th className="px-2 py-2">Фото</th>
+                <th className="px-2 py-2">Голос</th>
+                <th className="px-2 py-2">Ответ, сек</th>
+                <th className="px-2 py-2">Вечер</th>
+                <th className="px-2 py-2">Темы</th>
+                <th className="px-2 py-2">Остался на след. день</th>
+                <th className="px-2 py-2">Архив</th>
+                <th className="px-2 py-2">Оценка</th>
+                <th className="px-2 py-2">Проблемы</th>
               </tr>
             </thead>
             <tbody>
@@ -916,8 +916,8 @@ function ReportsView({ accountId }: { accountId: string }) {
                   <td className="px-2 py-2">{row.avgResponseTimeSec ? Math.round(row.avgResponseTimeSec) : '-'}</td>
                   <td className="px-2 py-2">{row.eveningMsgCount}</td>
                   <td className="px-2 py-2">{row.topicsCount}</td>
-                  <td className="px-2 py-2">{row.newChatsNextDay == null ? '-' : row.newChatsNextDay ? 'Р”Р°' : 'РќРµС‚'}</td>
-                  <td className="px-2 py-2">{row.isArchived ? `Р”Р° (${row.archiveReason || '-'})` : 'РќРµС‚'}</td>
+                  <td className="px-2 py-2">{row.newChatsNextDay == null ? '-' : row.newChatsNextDay ? 'Да' : 'Нет'}</td>
+                  <td className="px-2 py-2">{row.isArchived ? `Да (${row.archiveReason || '-'})` : 'Нет'}</td>
                   <td className={cx('px-2 py-2 font-semibold', row.qualityScore < 50 ? 'text-rose-300' : 'text-emerald-300')}>
                     {Math.round(row.qualityScore)}
                   </td>
@@ -928,7 +928,7 @@ function ReportsView({ accountId }: { accountId: string }) {
                           {issue.text}
                         </div>
                       ))}
-                      {!row.qualityIssues.length && <span className="text-neutral-500">РќРµС‚</span>}
+                      {!row.qualityIssues.length && <span className="text-neutral-500">Нет</span>}
                     </div>
                   </td>
                 </tr>
@@ -936,7 +936,7 @@ function ReportsView({ accountId }: { accountId: string }) {
               {!rows.length && (
                 <tr>
                   <td colSpan={11} className="px-2 py-6 text-center text-neutral-500">
-                    РќРµС‚ РґР°РЅРЅС‹С…. Р—Р°РїСѓСЃС‚Рё AI Р°РЅР°Р»РёР·.
+                    Нет данных. Запусти AI анализ.
                   </td>
                 </tr>
               )}
@@ -972,11 +972,11 @@ function ClientsView({ accountId }: { accountId: string }) {
   return (
     <div className="grid h-[calc(100vh-94px)] grid-cols-1 gap-3 lg:grid-cols-[360px_1fr]">
       <aside className="min-h-0 rounded-2xl border border-neutral-800 bg-neutral-900/70 p-3">
-        <h3 className="mb-2 text-sm font-semibold">Р‘Р°Р·Р° РєР»РёРµРЅС‚РѕРІ</h3>
+        <h3 className="mb-2 text-sm font-semibold">База клиентов</h3>
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="РџРѕРёСЃРє РєР»РёРµРЅС‚Р°"
+          placeholder="Поиск клиента"
           className="mb-3 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-2.5 py-2 text-sm outline-none focus:border-violet-500"
         />
         <div className="space-y-2 overflow-y-auto">
@@ -992,9 +992,9 @@ function ClientsView({ accountId }: { accountId: string }) {
               )}
             >
               <div className="font-semibold">{client.displayName}</div>
-              <div className="text-neutral-400">РњРµРЅРµРґР¶РµСЂ: {client.manager}</div>
+              <div className="text-neutral-400">Менеджер: {client.manager}</div>
               <div className={client.hasCritical ? 'text-rose-300' : 'text-emerald-300'}>
-                Р‘Р°Р»Р»: {Math.round(client.qualityScore)}
+                Балл: {Math.round(client.qualityScore)}
               </div>
             </button>
           ))}
@@ -1003,49 +1003,49 @@ function ClientsView({ accountId }: { accountId: string }) {
 
       <section className="min-h-0 rounded-2xl border border-neutral-800 bg-neutral-900/70 p-3">
         {!details ? (
-          <div className="text-sm text-neutral-500">Р’С‹Р±РµСЂРё РєР»РёРµРЅС‚Р° СЃР»РµРІР°</div>
+          <div className="text-sm text-neutral-500">Выбери клиента слева</div>
         ) : (
           <div className="space-y-3 overflow-y-auto text-sm">
             <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-3">
               <div className="font-semibold">{details.clientProfile?.displayName || details.chat.title || details.chat.telegramChatId}</div>
-              <div className="text-xs text-neutral-400">РњРµРЅРµРґР¶РµСЂ: {details.manager?.name || 'РќРµ РЅР°Р·РЅР°С‡РµРЅ'}</div>
-              <div className="mt-2 text-xs text-neutral-300">РђСЂС…РёРІ: {details.chat.isArchived ? `Р”Р° (${details.chat.archiveReason || '-'})` : 'РќРµС‚'}</div>
+              <div className="text-xs text-neutral-400">Менеджер: {details.manager?.name || 'Не назначен'}</div>
+              <div className="mt-2 text-xs text-neutral-300">Архив: {details.chat.isArchived ? `Да (${details.chat.archiveReason || '-'})` : 'Нет'}</div>
             </div>
 
             <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-3">
-              <h4 className="mb-2 text-xs font-semibold text-neutral-300">РџСЂРѕС„РёР»СЊ РєР»РёРµРЅС‚Р°</h4>
+              <h4 className="mb-2 text-xs font-semibold text-neutral-300">Профиль клиента</h4>
               <div className="grid grid-cols-1 gap-1 text-xs md:grid-cols-2">
-                <div>РҐРѕР±Р±Рё: {(details.clientProfile?.hobbies || []).join(', ') || '-'}</div>
-                <div>Р РѕРґРѕРј: {details.clientProfile?.hometown || '-'}</div>
-                <div>РћС‚РЅРѕС€РµРЅРёСЏ: {details.clientProfile?.maritalStatus || '-'}</div>
-                <div>Р”РµС‚Рё: {details.clientProfile?.hasKids == null ? '-' : details.clientProfile.hasKids ? 'Р”Р°' : 'РќРµС‚'}</div>
-                <div>РџРёС‚РѕРјС†С‹: {details.clientProfile?.hasPets == null ? '-' : details.clientProfile.hasPets ? 'Р”Р°' : 'РќРµС‚'}</div>
-                <div>РљСѓС…РЅСЏ: {details.clientProfile?.favoriteCuisine || '-'}</div>
-                <div>Р“РѕС‚РѕРІРёС‚: {details.clientProfile?.canCook == null ? '-' : details.clientProfile.canCook ? 'Р”Р°' : 'РќРµС‚'}</div>
-                <div>Р¤РёР»СЊРјС‹: {(details.clientProfile?.favoriteMovies || []).join(', ') || '-'}</div>
-                <div>РџСѓС‚РµС€РµСЃС‚РІРёСЏ: {(details.clientProfile?.travelPlaces || []).join(', ') || '-'}</div>
-                <div>РћР±СЂР°Р·РѕРІР°РЅРёРµ: {details.clientProfile?.education || '-'}</div>
-                <div>Р Р°Р±РѕС‚Р°: {details.clientProfile?.currentJob || '-'}</div>
-                <div>Р’СЂРµРґРЅС‹Рµ РїСЂРёРІС‹С‡РєРё: {(details.clientProfile?.badHabits || []).join(', ') || '-'}</div>
-                <div>РњРµС‡С‚С‹: {details.clientProfile?.dreams || '-'}</div>
-                <div>РЎС‚СЂР°С…Рё: {details.clientProfile?.fears || '-'}</div>
-                <div>Р¤РёРЅР°РЅСЃС‹: {details.clientProfile?.financialInfo || '-'}</div>
+                <div>Хобби: {(details.clientProfile?.hobbies || []).join(', ') || '-'}</div>
+                <div>Родом: {details.clientProfile?.hometown || '-'}</div>
+                <div>Отношения: {details.clientProfile?.maritalStatus || '-'}</div>
+                <div>Дети: {details.clientProfile?.hasKids == null ? '-' : details.clientProfile.hasKids ? 'Да' : 'Нет'}</div>
+                <div>Питомцы: {details.clientProfile?.hasPets == null ? '-' : details.clientProfile.hasPets ? 'Да' : 'Нет'}</div>
+                <div>Кухня: {details.clientProfile?.favoriteCuisine || '-'}</div>
+                <div>Готовит: {details.clientProfile?.canCook == null ? '-' : details.clientProfile.canCook ? 'Да' : 'Нет'}</div>
+                <div>Фильмы: {(details.clientProfile?.favoriteMovies || []).join(', ') || '-'}</div>
+                <div>Путешествия: {(details.clientProfile?.travelPlaces || []).join(', ') || '-'}</div>
+                <div>Образование: {details.clientProfile?.education || '-'}</div>
+                <div>Работа: {details.clientProfile?.currentJob || '-'}</div>
+                <div>Вредные привычки: {(details.clientProfile?.badHabits || []).join(', ') || '-'}</div>
+                <div>Мечты: {details.clientProfile?.dreams || '-'}</div>
+                <div>Страхи: {details.clientProfile?.fears || '-'}</div>
+                <div>Финансы: {details.clientProfile?.financialInfo || '-'}</div>
               </div>
             </div>
 
             <div className="rounded-xl border border-neutral-800 bg-neutral-950 p-3">
-              <h4 className="mb-2 text-xs font-semibold text-neutral-300">РџРѕСЃР»РµРґРЅРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ</h4>
+              <h4 className="mb-2 text-xs font-semibold text-neutral-300">Последние сообщения</h4>
               <div className="space-y-2 text-xs">
                 {details.recentMessages.map((message) => (
                   <div key={message.id} className="rounded-lg border border-neutral-800 bg-neutral-900 p-2">
                     <div className="text-neutral-400">
                       {message.user?.username || message.user?.firstName || message.user?.telegramUserId || 'unknown'}
                     </div>
-                    <div>{message.text || '[РјРµРґРёР°]'}</div>
+                    <div>{message.text || '[медиа]'}</div>
                     <div className="text-neutral-500">{new Date(message.sentAt).toLocaleString()}</div>
                   </div>
                 ))}
-                {!details.recentMessages.length && <div className="text-neutral-500">РќРµС‚ СЃРѕРѕР±С‰РµРЅРёР№</div>}
+                {!details.recentMessages.length && <div className="text-neutral-500">Нет сообщений</div>}
               </div>
             </div>
           </div>
@@ -1079,37 +1079,37 @@ function AnalyticsView({ accountId }: { accountId: string }) {
   return (
     <div className="rounded-2xl border border-neutral-800 bg-neutral-900/70 p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">РђРЅР°Р»РёС‚РёРєР° РєР°РЅР°Р»РѕРІ РјРµРЅРµРґР¶РµСЂРѕРІ</h2>
+        <h2 className="text-lg font-semibold">Аналитика каналов менеджеров</h2>
         <button
           onClick={loadStats}
           disabled={loading}
           className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-400 disabled:opacity-50"
         >
-          {loading ? 'Р—Р°РіСЂСѓР·РєР°...' : 'РћР±РЅРѕРІРёС‚СЊ'}
+          {loading ? 'Загрузка...' : 'Обновить'}
         </button>
       </div>
 
       <div className="space-y-2">
         {stats.length === 0 ? (
           <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4 text-center text-neutral-400">
-            {loading ? 'Р—Р°РіСЂСѓР·РєР° РґР°РЅРЅС‹С…...' : 'РќРµС‚ РґР°РЅРЅС‹С…'}
+            {loading ? 'Загрузка данных...' : 'Нет данных'}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-neutral-800">
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">РњРµРЅРµРґР¶РµСЂ</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">РљР°РЅР°Р»</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">РџРѕРґРїРёСЃС‡РёРєРё</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">РћР±РЅРѕРІР»РµРЅРѕ</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">РЎС‚Р°С‚СѓСЃ</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">Менеджер</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">Канал</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">Подписчики</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">Обновлено</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-300">Статус</th>
                 </tr>
               </thead>
               <tbody>
                 {stats.map((stat, idx) => (
                   <tr key={idx} className="border-b border-neutral-800/50 hover:bg-neutral-800/30">
-                    <td className="px-4 py-3">{stat.managerName || 'РќРµРёР·РІРµСЃС‚РЅРѕ'}</td>
+                    <td className="px-4 py-3">{stat.managerName || 'Неизвестно'}</td>
                     <td className="px-4 py-3">
                       <a
                         href={`https://t.me/${stat.channelUsername}`}
@@ -1124,22 +1124,22 @@ function AnalyticsView({ accountId }: { accountId: string }) {
                       {stat.error ? (
                         <span className="text-rose-400">{stat.error}</span>
                       ) : (
-                        <span className="font-semibold text-emerald-400">{stat.subscriberCount?.toLocaleString() || 'вЂ”'}</span>
+                        <span className="font-semibold text-emerald-400">{stat.subscriberCount?.toLocaleString() || '—'}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-xs text-neutral-500">
-                      {stat.lastUpdated ? new Date(stat.lastUpdated).toLocaleString() : 'вЂ”'}
+                      {stat.lastUpdated ? new Date(stat.lastUpdated).toLocaleString() : '—'}
                     </td>
                     <td className="px-4 py-3">
                       {stat.error ? (
                         <span className="flex items-center gap-1 text-rose-400">
                           <span className="inline-block h-2 w-2 rounded-full bg-rose-400"></span>
-                          РћС€РёР±РєР°
+                          Ошибка
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 text-emerald-400">
                           <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
-                          РћРљ
+                          ОК
                         </span>
                       )}
                     </td>
@@ -1152,8 +1152,8 @@ function AnalyticsView({ accountId }: { accountId: string }) {
       </div>
 
       <div className="mt-4 rounded-lg border border-neutral-800/50 bg-neutral-950/50 p-3 text-xs text-neutral-400">
-        <p>рџ’Ў РћС‚РѕР±СЂР°Р¶Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРґРїРёСЃС‡РёРєРѕРІ РІ РєР°РЅР°Р»Р°С… РјРµРЅРµРґР¶РµСЂРѕРІ РёР· Telegram Business API</p>
-        <p className="mt-2">вљ пёЏ РўСЂРµР±СѓРµС‚ Premium Р°РєРєР°СѓРЅС‚ Рё Р°РєС‚РёРІРЅС‹Р№ С‚РѕРєРµРЅ Р±РѕС‚Р°</p>
+        <p>Отображает количество подписчиков в каналах менеджеров из Telegram Business API</p>
+        <p className="mt-2">Требует Premium аккаунт и активный токен бота</p>
       </div>
     </div>
   );
