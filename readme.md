@@ -124,7 +124,7 @@ https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://<YOUR_API_HO
 ### 1) Что важно для сохранения ботов
 
 - Боты хранятся в PostgreSQL (таблица `bots`).
-- Текущий workflow использует только `prisma migrate deploy` (без `migrate reset` и без удаления данных).
+- Текущий workflow использует `prisma db push` (без `migrate reset` и без удаления данных).
 - Не запускайте повторно `setup-server.sh` на уже рабочем сервере, чтобы не перезаписывать `.env`.
 
 ### 2) Секреты в GitHub (Settings → Secrets and variables → Actions)
@@ -151,6 +151,6 @@ https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://<YOUR_API_HO
 	- ставит зависимости
 	- собирает API и Web
 	- на сервере делает `git pull --ff-only`
-	- применяет миграции `prisma migrate deploy`
+	- синхронизирует схему БД `prisma db push`
 	- перезапускает PM2 через `ecosystem.config.js`
 	- делает `nginx reload` и `healthcheck`

@@ -67,8 +67,8 @@ jobs:
 
             VITE_API_URL="${{ secrets.VITE_API_URL }}" npm run build -w apps/web
 
-            # Apply DB migrations
-            cd apps/api && npx prisma migrate deploy && cd ../..
+            # Sync DB schema (project uses db push, migrations directory is not present)
+            cd apps/api && npx prisma db push --schema=prisma/schema.prisma && cd ../..
 
             # Restart PM2
             pm2 startOrReload ecosystem.config.js --env production
@@ -111,8 +111,8 @@ jobs:
 
             VITE_API_URL="${{ secrets.VITE_API_URL }}" npm run build -w apps/web
 
-            # Apply DB migrations
-            cd apps/api && npx prisma migrate deploy && cd ../..
+            # Sync DB schema (project uses db push, migrations directory is not present)
+            cd apps/api && npx prisma db push --schema=prisma/schema.prisma && cd ../..
 
             # Restart PM2
             pm2 startOrReload ecosystem.config.js --env production
